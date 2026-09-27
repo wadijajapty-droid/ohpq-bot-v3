@@ -5,25 +5,28 @@ from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
-# Fake website for Render
+# Fake website for Render to keep alive
 app_web = Flask(__name__)
 @app_web.route('/')
-def home(): return "Bot is LIVE!"
+def home():
+    return "Bot is LIVE!"
 
 def run_web():
     port = int(os.environ.get("PORT", 10000))
     app_web.run(host='0.0.0.0', port=port)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Bot is LIVE! ✅ OHPQ V3 working!")
+    await update.message.reply_text("✅ Bot is alive! Use /signal")
 
 def run_bot():
     app = ApplicationBuilder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("help", start))
-    print("Bot starting...")
+    # add your other handlers here
+    print("Bot polling started...")
     app.run_polling()
 
 if __name__ == "__main__":
-    threading.Thread(target=run_web).start()
+    # Start web in background
+    threading.Thread(target=run_web, daemon=True).start()
+    # Start bot in main thread (important!)
     run_bot()
